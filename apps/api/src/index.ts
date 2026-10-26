@@ -13,6 +13,7 @@ const app = createApp({
   getSession: (headers) => auth.api.getSession({ headers }),
   authHandler: auth.handler,
   webOrigin: env.WEB_ORIGIN,
-}).listen(env.PORT)
+  // Sem reusePort, uma segunda instância falha em vez de dividir a porta com a primeira.
+}).listen({ port: env.PORT, reusePort: false })
 
 console.log(`Fita API em http://${app.server?.hostname}:${app.server?.port} (docs em /docs)`)
