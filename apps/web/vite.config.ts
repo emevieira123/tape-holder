@@ -11,6 +11,9 @@ export default defineConfig({
   },
   server: {
     port: 5173,
+    // A origem precisa bater com WEB_ORIGIN da API (trustedOrigins do better-auth).
+    // Se a porta estiver ocupada, falha em vez de subir em outra e cair em INVALID_ORIGIN.
+    strictPort: true,
     proxy: {
       '/api': { target: 'http://localhost:3333', changeOrigin: false },
     },
