@@ -1,0 +1,17 @@
+{
+  "name": "fita",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "db:up": "docker compose up -d",
+    "db:down": "docker compose down",
+    "db:migrate": "bun --filter @fita/api db:migrate",
+    "dev": "bun --filter '@fita/api' --filter '@fita/web' dev",
+    "test": "bun --filter '*' test",
+    "typecheck": "bun --filter '*' typecheck",
+    "db:seed": "bun --filter @fita/api db:seed"
+  }
+}
