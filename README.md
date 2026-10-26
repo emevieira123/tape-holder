@@ -41,7 +41,7 @@ Todas as rotas abaixo exigem sessão. Documentação interativa em http://localh
 | GET | `/api/titles?status&type&q` | Lista a biblioteca |
 | POST | `/api/titles` | Adiciona título |
 | GET / PATCH / DELETE | `/api/titles/:id` | Detalhe, edição (status, nota etc.), remoção |
-| POST | `/api/titles/:id/episodes/:n/toggle` | Marca ou desmarca episódio |
+| POST | `/api/titles/:id/seasons/:s/episodes/:e/toggle` | Marca ou desmarca o episódio `e` da temporada `s` |
 | POST | `/api/titles/:id/seasons/:n/toggle` | Marca ou desmarca temporada |
 | POST | `/api/titles/:id/next` | Marca o próximo episódio |
 | GET | `/api/stats` | Estatísticas |
@@ -50,6 +50,8 @@ Todas as rotas abaixo exigem sessão. Documentação interativa em http://localh
 
 Autenticação em `/api/auth/*` (better-auth): e-mail e senha, e login de convidado pelo plugin `anonymous`.
 
-## Regras de progresso
+## Temporadas e progresso
 
-Ficam em `packages/shared/src/progress.ts`. Marcar o último episódio conclui o título; desmarcar algo de um título concluído volta para Assistindo; marcar um episódio de algo em Quero assistir também passa para Assistindo. Pausado e Abandonado não mudam sozinhos. Filme é tratado como uma temporada com um episódio.
+Cada título guarda `episodes`, a quantidade de episódios de cada temporada (ex.: `[12, 13, 10]`), e `watched`, os episódios vistos por temporada (ex.: `[[1, 2, 3], [], []]`). Assim, editar uma temporada não desloca o progresso das outras. Ao reduzir ou remover temporadas, o progresso do que deixou de existir é descartado, e o formulário de edição avisa quantos episódios serão desmarcados.
+
+As regras ficam em `packages/shared/src/progress.ts`. Marcar o último episódio conclui o título; desmarcar algo de um título concluído volta para Assistindo; marcar um episódio de algo em Quero assistir também passa para Assistindo. Pausado e Abandonado não mudam sozinhos. Filme é tratado como uma temporada com um episódio.

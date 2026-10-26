@@ -1,5 +1,5 @@
 import { TITLE_STATUSES, TITLE_TYPES } from '@fita/shared'
-import { boolean, index, integer, pgEnum, pgTable, real, text, timestamp } from 'drizzle-orm/pg-core'
+import { boolean, index, integer, jsonb, pgEnum, pgTable, real, text, timestamp } from 'drizzle-orm/pg-core'
 import { user } from './auth-schema'
 
 export const titleTypeEnum = pgEnum('title_type', TITLE_TYPES)
@@ -15,14 +15,15 @@ export const title = pgTable(
     title: text('title').notNull(),
     type: titleTypeEnum('type').notNull(),
     status: titleStatusEnum('status').notNull(),
-    seasons: integer('seasons').notNull().default(1),
-    episodesPerSeason: integer('episodes_per_season').notNull().default(1),
+    /** Quantidade de episódios de cada temporada, na ordem. */
+    episodes: integer('episodes').array().notNull().default([1]),
     year: integer('year').notNull(),
     rating: real('rating'),
     genres: text('genres').notNull().default(''),
     coverUrl: text('cover_url').notNull().default(''),
     synopsis: text('synopsis').notNull().default(''),
-    watched: integer('watched').array().notNull().default([]),
+    /** Episódios assistidos por temporada; watched[0] é a temporada 1. */
+    watched: jsonb('watched').$type<number[][]>().notNull().default([]),
     createdAt: timestamp('created_at').defaultNow().notNull(),
     updatedAt: timestamp('updated_at')
       .defaultNow()
@@ -38,8 +39,7 @@ export const preferences = pgTable('preferences', {
     .references(() => user.id, { onDelete: 'cascade' }),
   notifyNewEpisodes: boolean('notify_new_episodes').notNull().default(true),
   hideSynopsis: boolean('hide_synopsis').notNull().default(false),
-  autoMarkNext: boolean('auto_mark_next').notNull().default(true),
-  language: text('language', { enum: ['pt-BR', 'en', 'ja'] }).notNull().default('pt-BR'),
+  jumpToNext: boolean('jump_to_next').notNull().default(true),
 })
 
 export type TitleRow = typeof title.$inferSelect

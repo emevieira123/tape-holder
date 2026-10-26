@@ -29,8 +29,8 @@ export interface AppDeps {
 }
 
 const idParams = z.object({ id: z.string().min(1) })
-const episodeParams = idParams.extend({ episode: z.coerce.number().int().min(1) })
 const seasonParams = idParams.extend({ season: z.coerce.number().int().min(1) })
+const episodeParams = seasonParams.extend({ episode: z.coerce.number().int().min(1) })
 
 export const createApp = (deps: AppDeps) => {
   const authGuard = new Elysia({ name: 'auth-guard' }).macro({
@@ -75,8 +75,9 @@ export const createApp = (deps: AppDeps) => {
       { auth: true, params: idParams, detail: { tags: ['Títulos'], summary: 'Remove um título' } },
     )
     .post(
-      '/titles/:id/episodes/:episode/toggle',
-      ({ user, params }) => deps.titles.toggleEpisode(user.id, params.id, params.episode),
+      '/titles/:id/seasons/:season/episodes/:episode/toggle',
+      ({ user, params }) =>
+        deps.titles.toggleEpisode(user.id, params.id, { season: params.season, episode: params.episode }),
       { auth: true, params: episodeParams, detail: { tags: ['Progresso'], summary: 'Marca ou desmarca um episódio' } },
     )
     .post(

@@ -30,6 +30,3 @@ export const EPISODE_MINUTES: Record<TitleType, number> = {
   series: 48,
   anime: 24,
 }
-
-export const LANGUAGES = ['pt-BR', 'en', 'ja'] as const
-export type Language = (typeof LANGUAGES)[number]

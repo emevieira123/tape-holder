@@ -6,8 +6,7 @@ import { preferences } from '../../db/schema'
 export const DEFAULT_PREFERENCES: Preferences = {
   notifyNewEpisodes: true,
   hideSynopsis: false,
-  autoMarkNext: true,
-  language: 'pt-BR',
+  jumpToNext: true,
 }
 
 export interface PreferencesRepository {
@@ -15,11 +14,10 @@ export interface PreferencesRepository {
   upsert(userId: string, data: Preferences): Promise<Preferences>
 }
 
-const pick = ({ notifyNewEpisodes, hideSynopsis, autoMarkNext, language }: Preferences): Preferences => ({
+const pick = ({ notifyNewEpisodes, hideSynopsis, jumpToNext }: Preferences): Preferences => ({
   notifyNewEpisodes,
   hideSynopsis,
-  autoMarkNext,
-  language,
+  jumpToNext,
 })
 
 export const createDrizzlePreferencesRepository = (db: Database): PreferencesRepository => ({

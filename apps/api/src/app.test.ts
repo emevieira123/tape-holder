@@ -28,7 +28,7 @@ const call = (path: string, init: RequestInit & { json?: unknown } = {}, authed 
   )
 }
 
-const newTitle = { title: 'Kaze no Uta', type: 'anime', status: 'planned', seasons: 1, episodesPerSeason: 13, year: 2025 }
+const newTitle = { title: 'Kaze no Uta', type: 'anime', status: 'planned', episodes: [13], year: 2025 }
 
 describe('API', () => {
   it('responde health sem sessão', async () => {
@@ -68,22 +68,35 @@ describe('API', () => {
   it('marca episódio, temporada e próximo', async () => {
     const { id } = (await (await call('/api/titles', { method: 'POST', json: newTitle })).json()) as { id: string }
 
-    const ep = await call(`/api/titles/${id}/episodes/3/toggle`, { method: 'POST' })
-    expect(((await ep.json()) as { title: { watched: number[] } }).title.watched).toEqual([3])
+    const ep = await call(`/api/titles/${id}/seasons/1/episodes/3/toggle`, { method: 'POST' })
+    expect(((await ep.json()) as { title: { watched: number[][] } }).title.watched).toEqual([[3]])
 
     const next = await call(`/api/titles/${id}/next`, { method: 'POST' })
-    expect(((await next.json()) as { episode: number }).episode).toBe(1)
+    expect(await next.json()).toMatchObject({ season: 1, episode: 1 })
 
     const season = await call(`/api/titles/${id}/seasons/1/toggle`, { method: 'POST' })
-    const body = (await season.json()) as { title: { status: string; watched: number[] } }
+    const body = (await season.json()) as { title: { status: string; watched: number[][] } }
     expect(body.title.status).toBe('completed')
-    expect(body.title.watched).toHaveLength(13)
+    expect(body.title.watched[0]).toHaveLength(13)
   })
 
   it('devolve 404 para título inexistente e 400 para episódio fora do total', async () => {
     expect((await call('/api/titles/nao-existe')).status).toBe(404)
     const { id } = (await (await call('/api/titles', { method: 'POST', json: newTitle })).json()) as { id: string }
-    expect((await call(`/api/titles/${id}/episodes/50/toggle`, { method: 'POST' })).status).toBe(400)
+    expect((await call(`/api/titles/${id}/seasons/1/episodes/50/toggle`, { method: 'POST' })).status).toBe(400)
+    expect((await call(`/api/titles/${id}/seasons/2/episodes/1/toggle`, { method: 'POST' })).status).toBe(400)
+  })
+
+  it('edita temporadas com quantidades diferentes de episódios', async () => {
+    const { id } = (await (await call('/api/titles', { method: 'POST', json: newTitle })).json()) as { id: string }
+    const res = await call(`/api/titles/${id}`, { method: 'PATCH', json: { title: 'Kaze no Uta 2', episodes: [13, 12, 24] } })
+    expect(res.status).toBe(200)
+    expect(await res.json()).toMatchObject({ title: 'Kaze no Uta 2', episodes: [13, 12, 24], watched: [[], [], []] })
+  })
+
+  it('recusa temporada sem episódios na edição', async () => {
+    const { id } = (await (await call('/api/titles', { method: 'POST', json: newTitle })).json()) as { id: string }
+    expect((await call(`/api/titles/${id}`, { method: 'PATCH', json: { episodes: [13, 0] } })).status).toBe(422)
   })
 
   it('remove um título', async () => {
@@ -93,10 +106,15 @@ describe('API', () => {
   })
 
   it('lê e atualiza preferências com padrão', async () => {
-    const defaults = (await (await call('/api/preferences')).json()) as { autoMarkNext: boolean }
-    expect(defaults.autoMarkNext).toBe(true)
-    const updated = await call('/api/preferences', { method: 'PATCH', json: { autoMarkNext: false } })
-    expect(((await updated.json()) as { autoMarkNext: boolean }).autoMarkNext).toBe(false)
+    const defaults = await (await call('/api/preferences')).json()
+    expect(defaults).toEqual({ notifyNewEpisodes: true, hideSynopsis: false, jumpToNext: true })
+    const updated = await call('/api/preferences', { method: 'PATCH', json: { jumpToNext: false } })
+    expect(((await updated.json()) as { jumpToNext: boolean }).jumpToNext).toBe(false)
+  })
+
+  it('ignora o campo de idioma, que foi removido', async () => {
+    const res = await call('/api/preferences', { method: 'PATCH', json: { language: 'en' } })
+    expect(((await res.json()) as Record<string, unknown>).language).toBeUndefined()
   })
 
   it('exporta a biblioteca como anexo', async () => {
