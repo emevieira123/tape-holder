@@ -1,4 +1,4 @@
-import { EPISODE_MINUTES, type Title, type TitleStatus, type TitleType } from '@fita/shared'
+import { EPISODE_MINUTES, type EpisodeRef, type Title, type TitleStatus, type TitleType } from '@fita/shared'
 
 /** Cor de cada status, como variável CSS do tema. */
 export const STATUS_COLOR: Record<TitleStatus, string> = {
@@ -22,5 +22,8 @@ export const formatMinutes = (min: number) => {
 }
 
 export const episodeDuration = (type: TitleType) => formatMinutes(EPISODE_MINUTES[type])
+
+/** "T2 E03" */
+export const episodeCode = ({ season, episode }: EpisodeRef) => `T${season} E${String(episode).padStart(2, '0')}`
 
 export const formatDecimal = (n: number) => n.toLocaleString('pt-BR', { maximumFractionDigits: 1 })

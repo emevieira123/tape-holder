@@ -4,6 +4,7 @@ import { AppLayout } from '@/components/layout/app-layout'
 import { Toaster } from '@/components/toaster'
 import { RedirectIfAuthenticated, RequireAuth } from '@/features/auth/route-guards'
 import { AddTitlePage } from '@/pages/add-title-page'
+import { EditTitlePage } from '@/pages/edit-title-page'
 import { LibraryPage } from '@/pages/library-page'
 import { LoginPage } from '@/pages/login-page'
 import { NotFoundPage } from '@/pages/not-found-page'
@@ -25,6 +26,7 @@ export const routes = [
         children: [
           { index: true, element: <LibraryPage /> },
           { path: 'titulos/:id', element: <TitleDetailPage /> },
+          { path: 'titulos/:id/editar', element: <EditTitlePage /> },
           { path: 'adicionar', element: <AddTitlePage /> },
           { path: 'estatisticas', element: <StatsPage /> },
           { path: 'perfil', element: <ProfilePage /> },

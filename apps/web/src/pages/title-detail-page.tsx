@@ -2,15 +2,15 @@ import {
   STATUS_LABELS,
   TITLE_STATUSES,
   TYPE_LABELS,
-  episodeLocation,
   nextEpisode,
   progressPercent,
   range,
-  seasonEpisodes,
   totalEpisodes,
+  watchedCount,
+  type EpisodeRef,
   type Title,
 } from '@fita/shared'
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { CheckBox } from '@/components/check-box'
 import { Chip } from '@/components/chip'
@@ -20,14 +20,15 @@ import { Button } from '@/components/ui/button'
 import { usePreferences } from '@/features/preferences/hooks'
 import { RatingStars } from '@/features/titles/rating-stars'
 import { useDeleteTitle, useMarkNext, useTitle, useToggleEpisode, useToggleSeason, useUpdateTitle } from '@/features/titles/hooks'
-import { STATUS_COLOR, coverOf, episodeDuration } from '@/lib/titles'
+import { STATUS_COLOR, coverOf, episodeCode, episodeDuration } from '@/lib/titles'
+import { cn } from '@/lib/utils'
 import { toast } from '@/stores/toast-store'
 
 const pad = (n: number) => String(n).padStart(2, '0')
 
-function BackLink() {
+function BackLink({ className }: { className?: string }) {
   return (
-    <Link to="/" className="flex items-center gap-1.5 self-start p-0 text-sm text-muted-foreground hover:text-foreground">
+    <Link to="/" className={cn('flex items-center gap-1.5 p-0 text-sm text-muted-foreground hover:text-foreground', className)}>
       <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden>
         <path d="M15 5l-7 7 7 7" />
       </svg>
@@ -36,17 +37,28 @@ function BackLink() {
   )
 }
 
-function Episodes({ title }: { title: Title }) {
+/** `highlight` é o episódio destacado como próximo; a tela rola até ele uma vez por título aberto. */
+function Episodes({ title, highlight }: { title: Title; highlight: EpisodeRef | null }) {
   const toggleEpisode = useToggleEpisode(title)
   const toggleSeason = useToggleSeason(title)
   const isMovie = title.type === 'movie'
-  const watched = new Set(title.watched)
+  const highlightRef = useRef<HTMLButtonElement>(null)
+  const scrolledFor = useRef<string | null>(null)
+
+  // Depende de highlight porque as preferências podem chegar depois do título.
+  useEffect(() => {
+    if (highlight === null || scrolledFor.current === title.id) return
+    scrolledFor.current = title.id
+    highlightRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+  }, [title.id, highlight])
 
   return (
     <div className="flex flex-col gap-[22px]">
-      {range(1, title.seasons).map((season) => {
-        const eps = seasonEpisodes(title, season)
-        const doneCount = eps.filter((n) => watched.has(n)).length
+      {title.episodes.map((count, i) => {
+        const season = i + 1
+        const watched = new Set(title.watched[i] ?? [])
+        const eps = range(1, count)
+        const doneCount = eps.filter((e) => watched.has(e)).length
         const allDone = doneCount === eps.length
         return (
           <section key={season} className="flex flex-col gap-2" aria-label={isMovie ? 'Filme' : `Temporada ${season}`}>
@@ -67,25 +79,39 @@ function Episodes({ title }: { title: Title }) {
               </div>
             </div>
             <div className="grid grid-cols-[repeat(auto-fill,minmax(260px,1fr))] gap-1.5">
-              {eps.map((n) => {
-                const done = watched.has(n)
-                const { episode } = episodeLocation(title, n)
+              {eps.map((episode) => {
+                const done = watched.has(episode)
+                const isNext = highlight?.season === season && highlight.episode === episode
                 return (
                   <button
-                    key={n}
+                    key={episode}
+                    ref={isNext ? highlightRef : undefined}
                     type="button"
                     role="checkbox"
                     aria-checked={done}
-                    onClick={() => toggleEpisode.mutate(n)}
-                    className="flex items-center gap-3 rounded-[10px] border px-3 py-2.5 text-left text-foreground transition-all duration-200 hover:border-muted-foreground"
-                    style={{ borderColor: done ? 'transparent' : 'var(--border)', background: done ? 'var(--surface2)' : 'var(--surface)' }}
+                    aria-current={isNext ? 'step' : undefined}
+                    onClick={() => toggleEpisode.mutate({ season, episode })}
+                    className={cn(
+                      'flex scroll-mt-24 items-center gap-3 rounded-[10px] border px-3 py-2.5 text-left text-foreground transition-all duration-200 hover:border-muted-foreground',
+                      isNext && 'ring-2 ring-primary/35',
+                    )}
+                    style={{
+                      borderColor: isNext ? 'var(--accent)' : done ? 'transparent' : 'var(--border)',
+                      background: done ? 'var(--surface2)' : 'var(--surface)',
+                    }}
                   >
                     <CheckBox checked={done} />
-                    <span className="w-7 shrink-0 text-[13px] text-muted-foreground tabular-nums">E{pad(episode)}</span>
+                    <span className="w-8 shrink-0 text-[13px] text-muted-foreground tabular-nums">E{pad(episode)}</span>
                     <span className="min-w-0 flex-1 truncate text-[15px] font-medium" style={{ opacity: done ? 0.6 : 1 }}>
                       {isMovie ? title.title : `Episódio ${episode}`}
                     </span>
-                    <span className="shrink-0 text-xs text-muted-foreground">{episodeDuration(title.type)}</span>
+                    {isNext ? (
+                      <span className="shrink-0 rounded-md bg-primary px-1.5 py-0.5 text-[11px] font-semibold tracking-[.04em] text-primary-foreground uppercase">
+                        Próximo
+                      </span>
+                    ) : (
+                      <span className="shrink-0 text-xs text-muted-foreground">{episodeDuration(title.type)}</span>
+                    )}
                   </button>
                 )
               })}
@@ -144,19 +170,28 @@ function TitleDetail({ title }: { title: Title }) {
   const isMovie = title.type === 'movie'
   const color = STATUS_COLOR[title.status]
   const hideSynopsis = prefs?.hideSynopsis && title.status !== 'completed'
+  const highlight = prefs?.jumpToNext && title.status === 'watching' && !isMovie ? next : null
 
+  const seasons = title.episodes.length
+  const seen = watchedCount(title)
   const meta = isMovie
     ? `${title.year} · ${episodeDuration('movie')}`
-    : `${title.year} · ${title.seasons} ${title.seasons > 1 ? 'temporadas' : 'temporada'} · ${total} episódios`
-  const nextLabel = next
-    ? isMovie
-      ? 'Ainda não assistido'
-      : `Próximo: T${episodeLocation(title, next).season} E${pad(episodeLocation(title, next).episode)}`
-    : 'Tudo assistido'
+    : `${title.year} · ${seasons} ${seasons > 1 ? 'temporadas' : 'temporada'} · ${total} episódios`
+  const nextLabel = next ? (isMovie ? 'Ainda não assistido' : `Próximo: ${episodeCode(next)}`) : 'Tudo assistido'
 
   return (
     <div className="flex animate-fadeup flex-col gap-6">
-      <BackLink />
+      <div className="flex items-center justify-between gap-3">
+        <BackLink />
+        <Button asChild variant="outline" size="sm" className="hover:text-foreground">
+          <Link to={`/titulos/${title.id}/editar`}>
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+              <path d="M4 20h4L19 9l-4-4L4 16v4zM13.5 6.5l4 4" />
+            </svg>
+            Editar
+          </Link>
+        </Button>
+      </div>
       <div className="flex flex-wrap gap-7">
         <div
           className="aspect-2/3 w-[220px] shrink-0 rounded-2xl bg-secondary bg-cover bg-center shadow-fita"
@@ -188,7 +223,7 @@ function TitleDetail({ title }: { title: Title }) {
             </ProgressRing>
             <div className="min-w-[140px] flex-1">
               <div className="text-[17px] font-semibold">
-                {isMovie ? (title.watched.length ? 'Assistido' : 'Não assistido') : `${title.watched.length} de ${total} episódios`}
+                {isMovie ? (seen ? 'Assistido' : 'Não assistido') : `${seen} de ${total} episódios`}
               </div>
               <div className="mt-0.5 text-sm text-muted-foreground">{nextLabel}</div>
             </div>
@@ -217,7 +252,7 @@ function TitleDetail({ title }: { title: Title }) {
           </div>
         </div>
       </div>
-      <Episodes title={title} />
+      <Episodes title={title} highlight={highlight} />
       <DeleteTitle title={title} />
     </div>
   )
@@ -230,7 +265,7 @@ export function TitleDetailPage() {
   if (isPending) {
     return (
       <div className="flex flex-col gap-6" aria-busy="true">
-        <BackLink />
+        <BackLink className="self-start" />
         <div className="flex flex-wrap gap-7">
           <div className="aspect-2/3 w-[220px] animate-pulse rounded-2xl bg-secondary" />
           <div className="flex min-w-[260px] flex-1 flex-col gap-4">
@@ -244,7 +279,7 @@ export function TitleDetailPage() {
   if (isError || !title) {
     return (
       <div className="flex flex-col items-start gap-4">
-        <BackLink />
+        <BackLink className="self-start" />
         <h1 className="m-0 text-2xl font-bold">Título não encontrado</h1>
         <p className="m-0 text-muted-foreground">Ele pode ter sido removido da biblioteca.</p>
       </div>

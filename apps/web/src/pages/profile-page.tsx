@@ -1,9 +1,8 @@
-import { LANGUAGES, type Language, type Preferences } from '@fita/shared'
+import type { Preferences } from '@fita/shared'
 import { useState } from 'react'
 import { UserAvatar } from '@/components/layout/user-avatar'
 import { ThemeIcon } from '@/components/theme-toggle'
 import { Button } from '@/components/ui/button'
-import { NativeSelect } from '@/components/ui/native-select'
 import { Switch } from '@/components/ui/switch'
 import { useCurrentUser } from '@/features/auth/use-current-user'
 import { useSignOut } from '@/features/auth/use-sign-out'
@@ -14,13 +13,11 @@ import { cn } from '@/lib/utils'
 import { toast } from '@/stores/toast-store'
 import { useUiStore } from '@/stores/ui-store'
 
-const PREF_ROWS: { key: 'notifyNewEpisodes' | 'hideSynopsis' | 'autoMarkNext'; label: string; sub: string }[] = [
+const PREF_ROWS: { key: keyof Preferences; label: string; sub: string }[] = [
   { key: 'notifyNewEpisodes', label: 'Lembretes de episódio', sub: 'Avisar quando sair episódio novo' },
   { key: 'hideSynopsis', label: 'Ocultar sinopses', sub: 'Esconder a sinopse de títulos não concluídos' },
-  { key: 'autoMarkNext', label: 'Marcar o próximo automaticamente', sub: 'Ao abrir um título já em andamento' },
+  { key: 'jumpToNext', label: 'Ir direto ao próximo episódio', sub: 'Ao abrir um título que você está assistindo' },
 ]
-
-const LANGUAGE_LABELS: Record<Language, string> = { 'pt-BR': 'Português (BR)', en: 'English', ja: '日本語' }
 
 function Row({ label, sub, children, last }: { label: string; sub: string; children: React.ReactNode; last?: boolean }) {
   return (
@@ -104,20 +101,11 @@ export function ProfilePage() {
         <Row label="Tema" sub={dark ? 'Escuro (padrão)' : 'Claro'}>
           <ThemeSwitch />
         </Row>
-        {PREF_ROWS.map((p) => (
-          <Row key={p.key} label={p.label} sub={p.sub}>
+        {PREF_ROWS.map((p, i) => (
+          <Row key={p.key} label={p.label} sub={p.sub} last={i === PREF_ROWS.length - 1}>
             <Switch checked={prefs?.[p.key] ?? false} disabled={!prefs} onCheckedChange={(v) => set({ [p.key]: v })} aria-label={p.label} />
           </Row>
         ))}
-        <Row label="Idioma" sub="Interface e títulos" last>
-          <NativeSelect value={prefs?.language ?? 'pt-BR'} disabled={!prefs} onChange={(e) => set({ language: e.target.value as Language })} aria-label="Idioma">
-            {LANGUAGES.map((l) => (
-              <option key={l} value={l}>
-                {LANGUAGE_LABELS[l]}
-              </option>
-            ))}
-          </NativeSelect>
-        </Row>
       </div>
 
       <div className="flex flex-wrap gap-2.5">

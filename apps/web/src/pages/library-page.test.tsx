@@ -7,8 +7,8 @@ import { filterTitles, LibraryPage } from './library-page'
 vi.mock('@/features/titles/api', () => ({ titlesApi: { list: vi.fn() } }))
 
 const titles = [
-  makeTitle({ title: 'Sombras de Kyoto', type: 'anime', status: 'watching', watched: [1, 2] }),
-  makeTitle({ title: 'Maré Alta', type: 'movie', status: 'completed', seasons: 1, episodesPerSeason: 1, watched: [1] }),
+  makeTitle({ title: 'Sombras de Kyoto', type: 'anime', status: 'watching', episodes: [6, 4], watched: [[1, 2], []] }),
+  makeTitle({ title: 'Maré Alta', type: 'movie', status: 'completed', episodes: [1], watched: [[1]] }),
   makeTitle({ title: 'Rota 9', type: 'series', status: 'planned' }),
 ]
 

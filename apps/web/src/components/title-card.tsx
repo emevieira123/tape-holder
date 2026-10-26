@@ -1,10 +1,10 @@
-import { STATUS_LABELS, TYPE_LABELS, progressPercent, totalEpisodes, type Title } from '@fita/shared'
+import { STATUS_LABELS, TYPE_LABELS, progressPercent, totalEpisodes, watchedCount, type Title } from '@fita/shared'
 import { Link } from 'react-router-dom'
 import { STATUS_COLOR, coverOf } from '@/lib/titles'
 import { StatusIcon } from './status-icon'
 
 export const progressLabel = (t: Title) =>
-  t.type === 'movie' ? (t.watched.length ? 'Assistido' : 'Não assistido') : `${t.watched.length}/${totalEpisodes(t)} ep`
+  t.type === 'movie' ? (watchedCount(t) ? 'Assistido' : 'Não assistido') : `${watchedCount(t)}/${totalEpisodes(t)} ep`
 
 export function CoverBadges({ type, status }: Pick<Title, 'type' | 'status'>) {
   return (

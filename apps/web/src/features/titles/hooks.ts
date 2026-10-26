@@ -1,6 +1,7 @@
-import { toggleEpisode, type CreateTitleInput, type Title, type UpdateTitle } from '@fita/shared'
+import { toggleEpisode, type CreateTitleInput, type EpisodeRef, type Title, type UpdateTitle } from '@fita/shared'
 import { useMutation, useQuery, useQueryClient, type QueryClient } from '@tanstack/react-query'
 import { errorMessage } from '@/lib/api'
+import { episodeCode } from '@/lib/titles'
 import { toast } from '@/stores/toast-store'
 import { titlesApi } from './api'
 
@@ -69,7 +70,7 @@ export function useDeleteTitle() {
 export function useToggleEpisode(title: Title) {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: (episode: number) => titlesApi.toggleEpisode(title.id, episode),
+    mutationFn: (ref: EpisodeRef) => titlesApi.toggleEpisode(title.id, ref),
     onMutate: async (episode) => {
       await qc.cancelQueries({ queryKey: titleKeys.detail(title.id) })
       const previous = qc.getQueryData<Title>(titleKeys.detail(title.id)) ?? title
@@ -81,9 +82,9 @@ export function useToggleEpisode(title: Title) {
       if (ctx) syncTitle(qc, ctx.previous)
       toast(errorMessage(err))
     },
-    onSuccess: ({ title: saved, added }, episode) => {
+    onSuccess: ({ title: saved, added }, ref) => {
       syncTitle(qc, saved)
-      if (added) toast(saved.type === 'movie' ? `${saved.title} concluído` : `Episódio ${episode} marcado`)
+      if (added) toast(saved.type === 'movie' ? `${saved.title} concluído` : `${episodeCode(ref)} marcado`)
     },
   })
 }
@@ -104,9 +105,9 @@ export function useMarkNext(title: Title) {
   const qc = useQueryClient()
   return useMutation({
     mutationFn: () => titlesApi.markNext(title.id),
-    onSuccess: ({ title: saved, episode }) => {
+    onSuccess: ({ title: saved, ...ref }) => {
       syncTitle(qc, saved)
-      toast(saved.type === 'movie' ? `${saved.title} concluído` : `Episódio ${episode} marcado`)
+      toast(saved.type === 'movie' ? `${saved.title} concluído` : `${episodeCode(ref)} marcado`)
     },
     onError: (err) => toast(errorMessage(err)),
   })
