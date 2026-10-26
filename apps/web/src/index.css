@@ -1,0 +1,161 @@
+@import 'tailwindcss';
+
+@custom-variant dark (&:where([data-theme='dark'], [data-theme='dark'] *));
+
+/* Tokens do design Fita. Os nomes do shadcn apontam para eles no @theme abaixo. */
+:root,
+[data-theme='dark'] {
+  --bg: #0c0b0d;
+  --surface: #151418;
+  --surface2: #1e1c22;
+  --border: #2a272d;
+  --text: #f2efe9;
+  --muted: #9a958d;
+  --accent: #e5484d;
+  --gold: #e8b84a;
+  --blue: #7aa2f7;
+  --onaccent: #fff;
+  --shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+  color-scheme: dark;
+}
+
+[data-theme='light'] {
+  --bg: #f6f3ee;
+  --surface: #ffffff;
+  --surface2: #efebe4;
+  --border: #e2ddd4;
+  --text: #1a1719;
+  --muted: #6b665f;
+  --accent: #d63a40;
+  --gold: #b07a0f;
+  --blue: #3b63c9;
+  --onaccent: #fff;
+  --shadow: 0 20px 50px rgba(40, 30, 20, 0.15);
+  color-scheme: light;
+}
+
+@theme inline {
+  --font-sans: 'Source Sans 3', system-ui, sans-serif;
+  --breakpoint-desk: 860px;
+
+  --color-background: var(--bg);
+  --color-foreground: var(--text);
+  --color-card: var(--surface);
+  --color-card-foreground: var(--text);
+  --color-popover: var(--surface);
+  --color-popover-foreground: var(--text);
+  --color-primary: var(--accent);
+  --color-primary-foreground: var(--onaccent);
+  --color-secondary: var(--surface2);
+  --color-secondary-foreground: var(--text);
+  --color-muted: var(--surface2);
+  --color-muted-foreground: var(--muted);
+  --color-accent: var(--surface2);
+  --color-accent-foreground: var(--text);
+  --color-destructive: var(--accent);
+  --color-border: var(--border);
+  --color-input: var(--border);
+  --color-ring: var(--accent);
+  --color-gold: var(--gold);
+  --color-blue: var(--blue);
+
+  --shadow-fita: var(--shadow);
+
+  --animate-spin-slow: spin 8s linear infinite;
+  --animate-fadeup: fadeup 0.4s ease both;
+  --animate-clap: clap 2.6s ease-in-out infinite;
+  --animate-drift: drift 40s linear infinite alternate;
+  --animate-film: film 1.2s linear infinite;
+  --animate-blink: blink 1.6s ease-in-out infinite;
+  --animate-pop: pop 0.4s cubic-bezier(0.2, 0.8, 0.2, 1.2) both;
+  --animate-toast: toast 2.4s ease both;
+  --animate-grow: grow 0.9s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  --animate-growx: growx 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+
+  @keyframes clap {
+    0%, 100% { transform: rotate(0); }
+    10% { transform: rotate(-22deg); }
+    22% { transform: rotate(0); }
+  }
+  @keyframes pulse-ring {
+    0% { transform: scale(0.6); opacity: 0.9; }
+    100% { transform: scale(1.8); opacity: 0; }
+  }
+  @keyframes draw {
+    to { stroke-dashoffset: 0; }
+  }
+  @keyframes pop {
+    0% { transform: scale(0.4); opacity: 0; }
+    60% { transform: scale(1.15); }
+    100% { transform: scale(1); opacity: 1; }
+  }
+  @keyframes grow {
+    from { transform: scaleY(0); }
+    to { transform: scaleY(1); }
+  }
+  @keyframes growx {
+    from { transform: scaleX(0); }
+    to { transform: scaleX(1); }
+  }
+  @keyframes fadeup {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: none; }
+  }
+  @keyframes film {
+    to { transform: translateX(-40px); }
+  }
+  @keyframes drift {
+    from { transform: rotate(-6deg) translateY(0); }
+    to { transform: rotate(-6deg) translateY(-120px); }
+  }
+  @keyframes toast {
+    0% { opacity: 0; transform: translate(-50%, 12px); }
+    12%, 80% { opacity: 1; transform: translate(-50%, 0); }
+    100% { opacity: 0; transform: translate(-50%, -6px); }
+  }
+  @keyframes bars {
+    0%, 100% { transform: scaleY(0.4); }
+    50% { transform: scaleY(1); }
+  }
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.25; }
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  html,
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    transition: background-color 0.35s, color 0.35s;
+  }
+  button {
+    cursor: pointer;
+  }
+  button:disabled {
+    cursor: not-allowed;
+  }
+  a {
+    @apply text-primary transition-colors hover:text-gold;
+  }
+}
+
+/* Traço do check que se desenha ao marcar. */
+.check-draw {
+  stroke-dasharray: 24;
+  stroke-dashoffset: 24;
+  animation: draw 0.35s ease forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
