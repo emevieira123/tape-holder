@@ -20,11 +20,18 @@ Para entrar, basta criar uma conta com e-mail e senha ou testar como convidado, 
 
 ## Prévia
 
-![Biblioteca](docs/screenshots/biblioteca.jpg)
-
-![Detalhe de uma série com episódios por temporada](docs/screenshots/detalhe.jpg)
-
-![Estatísticas](docs/screenshots/estatisticas.jpg)
+<table>
+  <tr>
+    <td width="33%"><img src="docs/screenshots/biblioteca.jpg" alt="Biblioteca"></td>
+    <td width="33%"><img src="docs/screenshots/detalhe.jpg" alt="Detalhe de uma série com episódios por temporada"></td>
+    <td width="33%"><img src="docs/screenshots/estatisticas.jpg" alt="Estatísticas"></td>
+  </tr>
+  <tr>
+    <td align="center">Biblioteca</td>
+    <td align="center">Detalhe do título</td>
+    <td align="center">Estatísticas</td>
+  </tr>
+</table>
 
 ## Estrutura
 
