@@ -4,23 +4,11 @@ Biblioteca de filmes, séries e animes com progresso por episódio. Implementaç
 
 ## Prévia
 
-Capturas feitas com a conta de demonstração criada pelo `db:seed`.
+![Biblioteca](docs/screenshots/biblioteca.jpg)
 
-![Biblioteca no tema escuro](docs/screenshots/biblioteca.jpg)
-
-| Tema claro | Login |
-| --- | --- |
-| ![Biblioteca no tema claro](docs/screenshots/biblioteca-claro.jpg) | ![Tela de login](docs/screenshots/login.jpg) |
-
-| Detalhe com episódios por temporada | Edição de temporadas |
-| --- | --- |
-| ![Detalhe de uma série](docs/screenshots/detalhe.jpg) | ![Formulário de edição](docs/screenshots/edicao.jpg) |
+![Detalhe de uma série com episódios por temporada](docs/screenshots/detalhe.jpg)
 
 ![Estatísticas](docs/screenshots/estatisticas.jpg)
-
-| Celular: biblioteca | Celular: detalhe |
-| --- | --- |
-| <img src="docs/screenshots/mobile-biblioteca.jpg" alt="Biblioteca no celular" width="300"> | <img src="docs/screenshots/mobile-detalhe.jpg" alt="Detalhe no celular" width="300"> |
 
 ## Estrutura
 
@@ -54,21 +42,11 @@ O Vite encaminha `/api` para a API, então front e API ficam na mesma origem e o
 
 ## API
 
-Todas as rotas abaixo exigem sessão. Documentação interativa em http://localhost:3333/docs.
+A API roda em Bun com Elysia e guarda os dados no Postgres por meio do Drizzle. Ela cuida da biblioteca de cada usuário: cadastro e edição de títulos, marcação de episódios e temporadas, preferências, estatísticas e exportação em JSON.
 
-| Método | Rota | |
-| --- | --- | --- |
-| GET | `/api/titles?status&type&q` | Lista a biblioteca |
-| POST | `/api/titles` | Adiciona título |
-| GET / PATCH / DELETE | `/api/titles/:id` | Detalhe, edição (status, nota etc.), remoção |
-| POST | `/api/titles/:id/seasons/:s/episodes/:e/toggle` | Marca ou desmarca o episódio `e` da temporada `s` |
-| POST | `/api/titles/:id/seasons/:n/toggle` | Marca ou desmarca temporada |
-| POST | `/api/titles/:id/next` | Marca o próximo episódio |
-| GET | `/api/stats` | Estatísticas |
-| GET | `/api/export` | Biblioteca em JSON |
-| GET / PATCH | `/api/preferences` | Preferências |
+A autenticação usa o better-auth, com login por e-mail e senha ou como convidado. Fora `/health` e `/api/auth`, todas as rotas exigem sessão.
 
-Autenticação em `/api/auth/*` (better-auth): e-mail e senha, e login de convidado pelo plugin `anonymous`.
+Os dados de entrada são validados com os mesmos schemas Zod que o frontend usa, vindos de `packages/shared`. A documentação OpenAPI gerada a partir deles fica em http://localhost:3333/docs, com todas as rotas e formatos.
 
 ## Temporadas e progresso
 
