@@ -5,6 +5,7 @@ import { useForm } from 'react-hook-form'
 import { Button } from '@/components/ui/button'
 import { FieldError } from '@/components/ui/field-error'
 import { Input } from '@/components/ui/input'
+import { PasswordInput } from '@/components/ui/password-input'
 import { Label } from '@/components/ui/label'
 import { signIn } from '@/lib/auth-client'
 import { toast } from '@/stores/toast-store'
@@ -57,7 +58,7 @@ export function SignInForm({ onSuccess }: { onSuccess: () => void }) {
               Esqueci a senha
             </a>
           </span>
-          <Input type="password" autoComplete="current-password" placeholder="••••••••" aria-invalid={!!errors.password} {...register('password')} />
+          <PasswordInput autoComplete="current-password" placeholder="••••••••" aria-invalid={!!errors.password} {...register('password')} />
           <FieldError message={errors.password?.message} />
         </Label>
       </div>

@@ -5,6 +5,7 @@ import { CheckBox } from '@/components/check-box'
 import { Button } from '@/components/ui/button'
 import { FieldError } from '@/components/ui/field-error'
 import { Input } from '@/components/ui/input'
+import { PasswordInput } from '@/components/ui/password-input'
 import { Label } from '@/components/ui/label'
 import { signUp } from '@/lib/auth-client'
 import { toast } from '@/stores/toast-store'
@@ -55,11 +56,11 @@ export function SignUpForm({ onSuccess }: { onSuccess: () => void }) {
         <div className="grid grid-cols-2 gap-2.5">
           <Label>
             Senha
-            <Input type="password" autoComplete="new-password" placeholder="mín. 8" aria-invalid={!!errors.password} {...register('password', { deps: ['confirmPassword'] })} />
+            <PasswordInput autoComplete="new-password" placeholder="mín. 8" aria-invalid={!!errors.password} {...register('password', { deps: ['confirmPassword'] })} />
           </Label>
           <Label>
             Confirmar
-            <Input type="password" autoComplete="new-password" placeholder="repita" aria-invalid={!!errors.confirmPassword} {...register('confirmPassword')} />
+            <PasswordInput autoComplete="new-password" placeholder="repita" aria-invalid={!!errors.confirmPassword} {...register('confirmPassword')} />
           </Label>
         </div>
         <FieldError message={errors.password?.message ?? errors.confirmPassword?.message} />
