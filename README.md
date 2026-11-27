@@ -1,6 +1,22 @@
 # Fita
 
-Biblioteca de filmes, séries e animes com progresso por episódio. Implementação do design "Fita" do Claude Design.
+O Fita guarda tudo o que você assiste num lugar só. Filmes, séries e animes ficam numa biblioteca pessoal, com o progresso marcado episódio por episódio, para nunca mais precisar lembrar onde parou.
+
+O visual veio do design "Fita", criado no Claude Design.
+
+## Funcionalidades
+
+Cada título entra na biblioteca com tipo, status, ano, gêneros, capa e sinopse. Séries e animes podem ter quantas temporadas quiser, cada uma com seu próprio número de episódios, e tudo isso pode ser editado depois sem perder o que já foi assistido.
+
+Na página do título, os episódios aparecem agrupados por temporada. Um clique marca ou desmarca um episódio, dá para marcar a temporada inteira de uma vez e o botão "Marcar próximo" avança para o episódio seguinte. O próximo da fila fica destacado e a página rola até ele.
+
+O status acompanha o progresso. Marcar o primeiro episódio de algo que estava em "Quero assistir" passa o título para "Assistindo", e marcar o último o conclui. Pausado e Abandonado só mudam quando você muda. Cada título também pode receber uma nota de 1 a 5 estrelas.
+
+A biblioteca tem busca por nome e filtros por status e por tipo, que ficam na URL e podem ser compartilhados ou salvos nos favoritos. A tela de estatísticas mostra títulos concluídos, episódios vistos, horas assistidas, média das notas e o que está em andamento.
+
+No perfil ficam o tema claro ou escuro, a opção de esconder a sinopse até concluir o título, o destaque do próximo episódio e a exportação da biblioteca em JSON.
+
+Para entrar, basta criar uma conta com e-mail e senha ou testar como convidado, sem cadastro. A interface funciona no computador e no celular, com navegação inferior em telas pequenas.
 
 ## Prévia
 
