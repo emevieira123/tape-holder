@@ -2,6 +2,26 @@
 
 Biblioteca de filmes, séries e animes com progresso por episódio. Implementação do design "Fita" do Claude Design.
 
+## Prévia
+
+Capturas feitas com a conta de demonstração criada pelo `db:seed`.
+
+![Biblioteca no tema escuro](docs/screenshots/biblioteca.jpg)
+
+| Tema claro | Login |
+| --- | --- |
+| ![Biblioteca no tema claro](docs/screenshots/biblioteca-claro.jpg) | ![Tela de login](docs/screenshots/login.jpg) |
+
+| Detalhe com episódios por temporada | Edição de temporadas |
+| --- | --- |
+| ![Detalhe de uma série](docs/screenshots/detalhe.jpg) | ![Formulário de edição](docs/screenshots/edicao.jpg) |
+
+![Estatísticas](docs/screenshots/estatisticas.jpg)
+
+| Celular: biblioteca | Celular: detalhe |
+| --- | --- |
+| <img src="docs/screenshots/mobile-biblioteca.jpg" alt="Biblioteca no celular" width="300"> | <img src="docs/screenshots/mobile-detalhe.jpg" alt="Detalhe no celular" width="300"> |
+
 ## Estrutura
 
 ```
